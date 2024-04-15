@@ -2,15 +2,18 @@
     "compilerOptions": {
       "target": "ES2020",
       "module": "commonjs",
-      "lib": ["ES2020"],
-      "outDir": "./api/dist",
-      "rootDir": "./api",
-      "strict": true,
       "esModuleInterop": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true
+      "noImplicitAny": true,
+      "moduleResolution": "node",
+      "sourceMap": true,
+      "outDir": "dist",
+      "baseUrl": ".",
+      "types": ["node", "express"],
+      "paths": {
+        "*": ["node_modules/*"]
+      }
     },
     "include": ["api/**/*"],
-    "exclude": ["node_modules", "**/*.test.ts"]
+    "exclude": ["node_modules"]
   }
   

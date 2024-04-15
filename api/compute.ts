@@ -1,13 +1,16 @@
-// api/compute.js
 import serverless from 'serverless-http';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 
 const app = express();
 app.use(bodyParser.json());
 
 class Note {
-    constructor(student_id, grade, date) {
+    student_id: number;
+    grade: number;
+    date: Date;
+
+    constructor(student_id: number, grade: number, date: string) {
         this.student_id = student_id;
         this.grade = grade;
         this.date = new Date(date);
@@ -15,14 +18,30 @@ class Note {
 }
 
 class Period {
-    constructor(dateA, dateB, weight) {
+    dateA: Date;
+    dateB: Date;
+    weight: number;
+
+    constructor(dateA: string, dateB: string, weight: number) {
         this.dateA = new Date(dateA);
         this.dateB = new Date(dateB);
         this.weight = weight;
     }
 }
 
-const notes_db = [
+type GradeCalculation = {
+    total: number;
+    count: number;
+};
+
+type FinalGrades = {
+    [studentId: number]: {
+        grade: number;
+        needed: number;
+    };
+};
+
+const notes_db: Note[] = [
     new Note(17072, 10, '2024-01-15'),
     new Note(17072, 10, '2024-02-20'),
     new Note(17072, 10, '2024-03-05'),
@@ -89,11 +108,10 @@ const notes_db = [
     new Note(17290, 10, '2024-12-20'),
 ];
 
-function computeGrades(periodRequests) {
-    const periods = periodRequests.map(p => new Period(p.dateA, p.dateB, p.weight));
-    let finalGrades = {};
+function computeGrades(periodRequests: Period[]): FinalGrades {
+    let finalGrades: { [studentId: number]: GradeCalculation } = {};
 
-    periods.forEach(period => {
+    periodRequests.forEach(period => {
         notes_db.forEach(note => {
             if (note.date >= period.dateA && note.date <= period.dateB) {
                 if (!finalGrades[note.student_id]) {
@@ -106,20 +124,21 @@ function computeGrades(periodRequests) {
         });
     });
 
+    let computedGrades: FinalGrades = {};
     for (let studentId in finalGrades) {
         let gradeData = finalGrades[studentId];
         let average = gradeData.total / gradeData.count;
 
-        finalGrades[studentId] = {
+        computedGrades[studentId] = {
             grade: average,
             needed: average < 6 ? 6 - average : 0
         };
     }
 
-    return finalGrades;
+    return computedGrades;
 }
 
-app.post('/compute', (req, res) => {
+app.post('/compute', (req: Request, res: Response) => {
     try {
         const result = computeGrades(req.body);
         res.json(result);
