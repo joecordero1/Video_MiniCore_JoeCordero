@@ -15,6 +15,11 @@ app.use(bodyParser.json());
 app.use('/compute', computeRouter);
 app.use('/students', studentsRouter);
 
+// Manejo de solicitudes en la raíz
+app.get('/', (req, res) => {
+    res.send('Pagina de prueba.');
+});
+
 // Inicia el servidor en el puerto 3000 si no estamos en un entorno serverless
 if (!process.env.LAMBDA_TASK_ROOT) {
   app.listen(3000, () => console.log('Local app listening on port 3000'));
