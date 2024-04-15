@@ -9,13 +9,11 @@
   },
   "author": "joecordero1",
   "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
+    "serverless-http": "^3.2.0",
     "body-parser": "^1.20.2",
     "express": "^4.19.2",
     "jest": "^29.7.0",
     "nodemon": "^3.1.0"
-  },
-  "dependencies": {
-    "serverless-http": "^3.2.0"
   }
 }
