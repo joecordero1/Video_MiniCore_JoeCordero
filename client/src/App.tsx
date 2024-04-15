@@ -44,7 +44,7 @@ const App: React.FC = () => {
 
         try {
             const response = await fetch(
-                "https://mini-core-grades-back.vercel.app/compute",
+                "https://video-mini-core-joe-cordero-7mumhmr58-joecorderos-projects.vercel.app/compute",
                 {
                     method: "POST",
                     headers: {
@@ -61,7 +61,7 @@ const App: React.FC = () => {
             const data: ResponseData = await response.json();
             setResponseData(data);
         } catch (error) {
-            console.error("Error:", error);
+            console.error("CAE AQUI:", error);
         }
     };
 
