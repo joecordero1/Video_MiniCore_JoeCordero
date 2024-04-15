@@ -1,19 +1,18 @@
-import serverless from 'serverless-http';
-import express, { Request, Response } from 'express';
+// api/students.js
+const express = require('express');
+const serverless = require('serverless-http');
+const router = express.Router();
 
 const app = express();
 
 class Student {
-    id: number;
-    name: string;
-
-    constructor(id: number, name: string) {
+    constructor(id, name) {
         this.id = id;
         this.name = name;
     }
 }
 
-const students_db: Student[] = [
+const students_db = [
     new Student(17072, "Paula Polisinlinker"),
     new Student(17075, "Daniel Cardenas"),
     new Student(17078, "Nico Herbas"),
@@ -21,8 +20,11 @@ const students_db: Student[] = [
     new Student(17290, "Poli Linker"),
 ];
 
-app.get('/students', (req: Request, res: Response) => {
+// Ruta para obtener todos los estudiantes
+router.get('/', (req, res) => {
     res.json(students_db);
 });
 
-export default serverless(app);
+// Exporta el router para usar en index.js
+module.exports = router;
+

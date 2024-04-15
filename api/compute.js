@@ -1,16 +1,14 @@
+// api/compute.js
 import serverless from 'serverless-http';
-import express, { Request, Response } from 'express';
+const express = require('express');
+const router = express.Router();
 import bodyParser from 'body-parser';
 
 const app = express();
 app.use(bodyParser.json());
 
 class Note {
-    student_id: number;
-    grade: number;
-    date: Date;
-
-    constructor(student_id: number, grade: number, date: string) {
+    constructor(student_id, grade, date) {
         this.student_id = student_id;
         this.grade = grade;
         this.date = new Date(date);
@@ -18,30 +16,14 @@ class Note {
 }
 
 class Period {
-    dateA: Date;
-    dateB: Date;
-    weight: number;
-
-    constructor(dateA: string, dateB: string, weight: number) {
+    constructor(dateA, dateB, weight) {
         this.dateA = new Date(dateA);
         this.dateB = new Date(dateB);
         this.weight = weight;
     }
 }
 
-type GradeCalculation = {
-    total: number;
-    count: number;
-};
-
-type FinalGrades = {
-    [studentId: number]: {
-        grade: number;
-        needed: number;
-    };
-};
-
-const notes_db: Note[] = [
+const notes_db = [
     new Note(17072, 10, '2024-01-15'),
     new Note(17072, 10, '2024-02-20'),
     new Note(17072, 10, '2024-03-05'),
@@ -108,10 +90,11 @@ const notes_db: Note[] = [
     new Note(17290, 10, '2024-12-20'),
 ];
 
-function computeGrades(periodRequests: Period[]): FinalGrades {
-    let finalGrades: { [studentId: number]: GradeCalculation } = {};
+function computeGrades(periodRequests) {
+    const periods = periodRequests.map(p => new Period(p.dateA, p.dateB, p.weight));
+    let finalGrades = {};
 
-    periodRequests.forEach(period => {
+    periods.forEach(period => {
         notes_db.forEach(note => {
             if (note.date >= period.dateA && note.date <= period.dateB) {
                 if (!finalGrades[note.student_id]) {
@@ -124,21 +107,29 @@ function computeGrades(periodRequests: Period[]): FinalGrades {
         });
     });
 
-    let computedGrades: FinalGrades = {};
     for (let studentId in finalGrades) {
         let gradeData = finalGrades[studentId];
         let average = gradeData.total / gradeData.count;
 
-        computedGrades[studentId] = {
+        finalGrades[studentId] = {
             grade: average,
             needed: average < 6 ? 6 - average : 0
         };
     }
 
-    return computedGrades;
+    return finalGrades;
 }
+// Define el endpoint de tu API para el cálculo de notas
+router.post('/', (req, res) => {
+    try {
+      const result = computeGrades(req.body);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ error: "Error calculating grades" });
+    }
+  });
 
-app.post('/compute', (req: Request, res: Response) => {
+app.post('/compute', (req, res) => {
     try {
         const result = computeGrades(req.body);
         res.json(result);
@@ -146,5 +137,4 @@ app.post('/compute', (req: Request, res: Response) => {
         res.status(400).json({ error: "Error calculating grades" });
     }
 });
-
-export default serverless(app);
+module.exports = router;
