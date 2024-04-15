@@ -1,8 +1,8 @@
 // api/compute.js
-import serverless from 'serverless-http';
+const serverless = require('serverless-http');
 const express = require('express');
 const router = express.Router();
-import bodyParser from 'body-parser';
+const bodyParser = require('body-parser');
 
 const app = express();
 app.use(bodyParser.json());
